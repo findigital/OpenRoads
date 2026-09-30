@@ -1087,7 +1087,7 @@ function IdeaCard({ idea }: { idea: Idea }) {
         style={{ flexDirection: "row", gap: 14 }}
       >
         <Text style={{ fontSize: 27, width: 34, paddingTop: 3 }}>
-          {/document|permission|form/i.test(idea.title)
+          {/document|permission|form|carrier|setup|packet/i.test(idea.title)
             ? "📋"
             : /money|spend|saving/i.test(idea.title)
               ? "💸"

@@ -324,9 +324,10 @@ export function TodayScreen() {
             Start with a thought. We’ll take it from there.
           </Text>
           {[
+            "Handle the new carrier setup packet",
             "What needs my attention today?",
-            "Help me catch up on my inbox",
-            "Show my recent documents",
+            "Look up this carrier's authority on FMCSA",
+            "Watch the diesel price",
           ].map((prompt) => (
             <Pressable
               key={prompt}

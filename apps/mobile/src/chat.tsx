@@ -187,7 +187,7 @@ export function ChatScreen({
   thread?: Selection;
   active?: boolean;
 }) {
-  const { api, workspace: w, refresh, navigate } = useWorkspace();
+  const { api, workspace: w, refresh } = useWorkspace();
   const { data: agentWorkspace, refresh: refreshAgent } = useAgentWorkspace();
   const { enabled: richThreads, mainId, claimPrompt } = useMuseThread();
   const selection = thread || { id: "local", existing: false };
@@ -454,18 +454,13 @@ export function ChatScreen({
             </Text>
             <View style={{ width: "100%", maxWidth: 360, marginTop: 14, gap: 8 }}>
               {[
-                {
-                  text: "Find cool things on Hacker News",
-                  action: () => enqueue("Check out Hacker News for cool stuff"),
-                },
-                {
-                  text: "Summarize copilotkit.ai",
-                  action: () => enqueue("Summarize copilotkit.ai"),
-                },
-                { text: "Keep an eye on a website", action: () => navigate("goals") },
-              ].map((item) => (
-                <Button key={item.text} onPress={item.action}>
-                  {item.text}
+                "Handle the new carrier setup packet",
+                "What needs my attention today?",
+                "Look up this carrier's authority on FMCSA",
+                "Watch the diesel price",
+              ].map((prompt) => (
+                <Button key={prompt} onPress={() => enqueue(prompt)}>
+                  {prompt}
                 </Button>
               ))}
             </View>

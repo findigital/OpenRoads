@@ -371,14 +371,23 @@ export class ConversationAgent extends AbstractAgent {
         content: `Your local calendar has ${w.events.length} events. Open Calendar to see the details, or ask me to take care of a document.`,
       };
     }
+    const freight = Boolean(this.config.openroadsPersona?.trim());
     if (/what can|help|hello|^hi[!. ]*$/i.test(prompt) && prompt.length < 70)
       return {
-        content:
-          "What would you like to take off your plate? I can prepare the permission slip, keep an eye on a website, or organize your spending. For open-ended requests, connect a model in Apps.",
+        content: freight
+          ? "What should I take off your desk? I can handle a carrier setup packet, keep an eye on a public page, or sort what needs attention. For open-ended requests, connect a model in Apps."
+          : "What would you like to take off your plate? I can prepare the permission slip, keep an eye on a website, or organize your spending. For open-ended requests, connect a model in Apps.",
       };
-    if (/permission|pdf|form/i.test(prompt)) {
+    // setup|packet covers the carrier packet prompt. Bare "carrier" would also match
+    // "Look up this carrier's authority on FMCSA", which is not a document task.
+    if (
+      /permission|pdf|form|setup|packet/i.test(prompt) ||
+      (/carrier/i.test(prompt) && /handle|complete|fill|form|pdf/i.test(prompt))
+    ) {
       const w = await this.service.workspace.snapshot(this.owner);
-      const mail = w.mail.find((m) => m.attachments.length && !/^Sent\b/i.test(m.label));
+      const attached = w.mail.filter((m) => m.attachments.length && !/^Sent\b/i.test(m.label));
+      const mail =
+        attached.find((m) => /carrier|setup|packet/i.test(`${m.subject} ${m.body}`)) ?? attached[0];
       if (!mail)
         return {
           content:
@@ -389,14 +398,15 @@ export class ConversationAgent extends AbstractAgent {
         {
           kind: "document",
           prompt,
-          title: "Complete the permission slip",
+          title: freight ? "Handle the carrier setup packet" : "Complete the permission slip",
           input: { messageId: mail.id },
         },
         key,
       );
       return {
-        content:
-          "I found the permission slip. I’ll prepare a copy and ask for the details I need. You can follow along here or come back when it’s ready for review.",
+        content: freight
+          ? "I found the carrier setup packet. I’ll import the form and ask for the details the email left out. You can follow along here or come back when it’s ready for review."
+          : "I found the permission slip. I’ll prepare a copy and ask for the details I need. You can follow along here or come back when it’s ready for review.",
         task,
       };
     }

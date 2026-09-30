@@ -280,3 +280,107 @@ export async function createSamplePdf(): Promise<Uint8Array> {
     return doc.save();
   }, "Could not create the sample PDF");
 }
+
+/** Fictional fillable carrier packet. Personal and coverage blanks stay empty until supplied. */
+export async function createCarrierProfilePdf(): Promise<Uint8Array> {
+  return pdfOperation(async () => {
+    const doc = await PDFDocument.create();
+    doc.setTitle("Carrier Profile & Setup Form");
+    doc.setAuthor("OpenRoads");
+    const regular = await doc.embedFont(StandardFonts.Helvetica);
+    const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+    const navy = rgb(0.043, 0.129, 0.22);
+    const gold = rgb(1, 0.761, 0.051);
+    const form = doc.getForm();
+    const pages = [doc.addPage([612, 792]), doc.addPage([612, 792])];
+    for (const [index, page] of pages.entries()) {
+      page.drawRectangle({ x: 0, y: 734, width: 612, height: 58, color: navy });
+      page.drawRectangle({ x: 0, y: 728, width: 612, height: 6, color: gold });
+      page.drawText("OPENROADS", { x: 40, y: 762, size: 10, font: bold, color: gold });
+      page.drawText(index === 0 ? "Carrier Profile & Setup Form" : "Coverage & signature", {
+        x: 40,
+        y: 742,
+        size: 16,
+        font: bold,
+        color: rgb(1, 1, 1),
+      });
+      page.drawText("FICTIONAL FORM — no real motor carrier or customer", {
+        x: 40,
+        y: 28,
+        size: 9,
+        font: regular,
+        color: navy,
+      });
+      page.drawText(`${index + 1} / 2`, { x: 540, y: 28, size: 9, font: regular, color: navy });
+    }
+    const addText = (
+      page: (typeof pages)[number],
+      name: string,
+      label: string,
+      x: number,
+      y: number,
+      width: number,
+    ) => {
+      page.drawText(label, { x, y: y + 24, size: 9, font: bold, color: navy });
+      const field = form.createTextField(name);
+      field.addToPage(page, {
+        x,
+        y,
+        width,
+        height: 18,
+        borderWidth: 1,
+        borderColor: rgb(0.75, 0.78, 0.82),
+        backgroundColor: rgb(1, 1, 1),
+        font: regular,
+      });
+      field.setFontSize(10);
+    };
+    const first = pages[0];
+    const second = pages[1];
+    const left = 40;
+    const right = 320;
+    const column = 240;
+    addText(first, "legal_name", "Legal name", left, 660, column);
+    addText(first, "dba", "DBA", right, 660, column);
+    addText(first, "mc_number", "MC number", left, 600, column);
+    addText(first, "usdot_number", "USDOT number", right, 600, column);
+    addText(first, "contact_name", "Contact name", left, 540, column);
+    addText(first, "phone", "Phone", right, 540, column);
+    addText(first, "email", "Email", left, 480, 520);
+    addText(first, "remit_to_address", "Remit-to address", left, 420, 520);
+    addText(first, "equipment_type", "Equipment type", left, 360, column);
+    addText(first, "truck_count", "Number of trucks", right, 360, column);
+    addText(second, "insurer", "Insurer", left, 640, column);
+    addText(second, "policy_number", "Policy number", right, 640, column);
+    addText(second, "auto_liability_limit", "Auto liability limit", left, 580, column);
+    addText(second, "cargo_limit", "Cargo limit", right, 580, column);
+    addText(second, "coi_expiration", "COI expiration date", left, 520, column);
+    const quickPay = form.createCheckBox("quick_pay_requested");
+    quickPay.addToPage(second, {
+      x: left,
+      y: 460,
+      width: 16,
+      height: 16,
+      borderWidth: 1,
+      borderColor: navy,
+    });
+    second.drawText("Quick pay requested", {
+      x: left + 24,
+      y: 464,
+      size: 11,
+      font: regular,
+      color: navy,
+    });
+    addText(second, "signature_name", "Signature name", left, 380, column);
+    addText(second, "signature_date", "Date", right, 380, column);
+    second.drawText("This records the typed name. It is not a digital signature.", {
+      x: left,
+      y: 340,
+      size: 10,
+      font: regular,
+      color: navy,
+    });
+    form.updateFieldAppearances(regular);
+    return doc.save();
+  }, "Could not create the carrier profile PDF");
+}

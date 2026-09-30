@@ -10,7 +10,10 @@ import type {
   Workspace,
 } from "../../../packages/domain/src/index.ts";
 import { GoogleClient } from "../../../packages/integrations/src/google.ts";
-import { createSamplePdf } from "../../../packages/integrations/src/pdf.ts";
+import {
+  createCarrierProfilePdf,
+  createSamplePdf,
+} from "../../../packages/integrations/src/pdf.ts";
 import type { ActionService } from "./actions.ts";
 import { agentConfigured } from "./agent.ts";
 import type { Config } from "./config.ts";
@@ -146,6 +149,255 @@ export class WorkspaceService {
   }
   private async seed(owner: string, actions: ActionService) {
     if (await this.db.get(owner, "settings", "seeded")) return;
+    if (this.config.openroadsPersona?.trim()) await this.seedFreight(owner);
+    else await this.seedSchool(owner, actions);
+    await this.db.put(owner, "settings", { id: "google", enabled: true });
+    await this.db.put(owner, "settings", { id: "seeded", value: true });
+  }
+  private async seedFreight(owner: string) {
+    const account = this.sampleAccount().email;
+    const file = await this.files.import(
+      owner,
+      "Carrier Profile & Setup Form.pdf",
+      await createCarrierProfilePdf(),
+      "Mail · Northline Haul LLC",
+    );
+    const now = new Date();
+    const at = (dayOffset: number, hour: number, minute = 0) => {
+      const d = new Date(now);
+      d.setDate(d.getDate() + dayOffset);
+      d.setHours(hour, minute, 0, 0);
+      return d;
+    };
+    const onWeekday = (weekday: number, hour: number, minute = 0) => {
+      const d = at(0, hour, minute);
+      const delta = (weekday - d.getDay() + 7) % 7;
+      d.setDate(d.getDate() + delta);
+      if (d.getTime() <= now.getTime()) d.setDate(d.getDate() + 7);
+      return d;
+    };
+    const nextWeekday = (weekday: number) => {
+      const d = new Date(now);
+      const delta = (weekday - d.getDay() + 7) % 7 || 7;
+      d.setDate(d.getDate() + delta);
+      return d.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    };
+    const inDays = (days: number) => {
+      const d = new Date(now);
+      d.setDate(d.getDate() + days);
+      return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    };
+    const mails: Mail[] = [
+      {
+        id: "mail-carrier-packet",
+        threadId: "carrier-packet-thread",
+        sender: "Priya Nandakumar",
+        from: "dispatch@northline.test",
+        to: [account],
+        subject: "New carrier setup packet",
+        body: [
+          "Hi,",
+          "",
+          "Please complete the attached carrier setup packet. It is a PDF form for Northline Haul LLC, a fictional carrier.",
+          "",
+          "Legal name: Northline Haul LLC",
+          "DBA: Northline",
+          "MC number: MC-884211",
+          "USDOT number: 3901844",
+          "Contact name: Priya Nandakumar",
+          "Phone: 312-555-0148",
+          "Email: dispatch@northline.test",
+          "Equipment type: Dry van",
+          "Number of trucks: 18",
+          "Insurer: Harbor Mutual",
+          "Policy number: HM-22910",
+          "Auto liability limit: $1,000,000",
+          "COI expiration date: June 1, 2027",
+          "Quick pay requested: yes",
+          "Signature name: Priya Nandakumar",
+          "Signature date: September 28, 2026",
+          "",
+          "Cargo limit and remit-to address were left out of this packet. Please ask us for those before sending the completed form back.",
+          "",
+          "Thank you,",
+          "Priya Nandakumar",
+          "Northline Haul LLC",
+          "",
+          "This message is fictional sample data.",
+        ].join("\n"),
+        date: at(0, 8, 40).toISOString(),
+        unread: true,
+        label: "Carriers",
+        attachments: [file.id],
+      },
+      {
+        id: "mail-pod",
+        threadId: "pod-thread",
+        sender: "Southbend Dock",
+        from: "dock@southbend.test",
+        to: [account],
+        subject: "POD for load #JA-48213",
+        body: [
+          "Load #JA-48213 was delivered to the consignee.",
+          "",
+          "Exception: 2 pallets short.",
+          "Consignee: Lakeside Goods (fictional)",
+          "Lane: Chicago, IL to Atlanta, GA",
+          "",
+          "Please flag the shortage before the POD is closed.",
+          "",
+          "This message is fictional sample data.",
+        ].join("\n"),
+        date: at(0, 8, 12).toISOString(),
+        unread: true,
+        label: "POD",
+        attachments: [],
+      },
+      {
+        id: "mail-quote",
+        threadId: "quote-thread",
+        sender: "Morgan Hale",
+        from: "shipping@lakeside-goods.example.com",
+        to: [account],
+        subject: "Shipper quote request: Chicago to Atlanta",
+        body: [
+          "Please quote this freight.",
+          "",
+          "Origin: Chicago, IL",
+          "Destination: Atlanta, GA",
+          "Mode: dry van FTL",
+          "Weight: 42,000 lb",
+          `Pickup: next Tuesday, ${nextWeekday(2)}`,
+          "",
+          "Lakeside Goods is a fictional shipper.",
+          "",
+          "This message is fictional sample data.",
+        ].join("\n"),
+        date: at(0, 7, 55).toISOString(),
+        unread: true,
+        label: "Quotes",
+        attachments: [],
+      },
+      {
+        id: "mail-invoice",
+        threadId: "invoice-thread",
+        sender: "Red Cedar Transport",
+        from: "billing@redcedar.test",
+        to: [account],
+        subject: "Carrier invoice for load #JA-48190",
+        body: [
+          "Red Cedar Transport LLC (fictional) submitted an invoice for load #JA-48190.",
+          "",
+          "Detention claimed: 3 hours",
+          "Check-in: September 28, 2026, 8:10 AM",
+          "Check-out: September 28, 2026, 2:40 PM",
+          "Amount claimed: $225",
+          "",
+          "Please check the dwell time before approving payment.",
+          "",
+          "This message is fictional sample data.",
+        ].join("\n"),
+        date: at(0, 7, 20).toISOString(),
+        unread: true,
+        label: "Billing",
+        attachments: [],
+      },
+      {
+        id: "mail-coi",
+        threadId: "coi-thread",
+        sender: "Harbor Mutual",
+        from: "certificates@harbor-mutual.test",
+        to: [account],
+        subject: "Insurance certificate expiring in 21 days",
+        body: [
+          "The certificate of insurance for an existing carrier, Red Cedar Transport LLC (fictional), expires in 21 days.",
+          "",
+          `COI expiration: ${inDays(21)}`,
+          "MC number: MC-102884",
+          "Policy number: HM-10442",
+          "",
+          "Please review the COI before it lapses.",
+          "",
+          "This message is fictional sample data.",
+        ].join("\n"),
+        date: at(-1, 16, 5).toISOString(),
+        unread: false,
+        label: "Insurance",
+        attachments: [],
+      },
+      {
+        id: "mail-quickpay",
+        threadId: "quickpay-thread",
+        sender: "Northline Haul LLC",
+        from: "payables@northline.test",
+        to: [account],
+        subject: "Quick-pay request for load #JA-48177",
+        body: [
+          "Please process quick pay for load #JA-48177.",
+          "",
+          "Carrier: Northline Haul LLC (fictional)",
+          "Amount: $1,840",
+          "Remit-to is already on file for this load.",
+          "",
+          "This message is fictional sample data.",
+        ].join("\n"),
+        date: at(-1, 11, 30).toISOString(),
+        unread: true,
+        label: "Billing",
+        attachments: [],
+      },
+    ];
+    for (const mail of mails) await this.db.put(owner, "mail", mail);
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const review = onWeekday(4, 15);
+    const onboarding = at(1, 11);
+    const standup = onWeekday(1, 9);
+    for (const event of [
+      {
+        id: "event-shipper-review",
+        calendarId: "primary",
+        title: "Shipper quarterly review",
+        start: review.toISOString(),
+        end: new Date(review.getTime() + 60 * 60000).toISOString(),
+        allDay: false,
+        timeZone: zone,
+        location: "Chicago office",
+        description: "Quarterly review with fictional shipper Lakeside Goods.",
+        attendees: ["shipping@lakeside-goods.example.com"],
+      },
+      {
+        id: "event-onboarding-call",
+        calendarId: "primary",
+        title: "Carrier onboarding call",
+        start: onboarding.toISOString(),
+        end: new Date(onboarding.getTime() + 30 * 60000).toISOString(),
+        allDay: false,
+        timeZone: zone,
+        location: "Phone",
+        description: "Onboarding call with fictional carrier Northline Haul LLC.",
+        attendees: ["dispatch@northline.test"],
+      },
+      {
+        id: "event-billing-standup",
+        calendarId: "primary",
+        title: "Monday billing standup",
+        start: standup.toISOString(),
+        end: new Date(standup.getTime() + 30 * 60000).toISOString(),
+        allDay: false,
+        timeZone: zone,
+        location: "Billing desk",
+        description: "Monday billing standup for open detention, quick pay, and COI items.",
+        attendees: [],
+      },
+    ])
+      await this.db.put(owner, "events", event);
+  }
+  private async seedSchool(owner: string, actions: ActionService) {
     const account = this.sampleAccount().email;
     const file = await this.files.import(
       owner,
@@ -260,8 +512,6 @@ export class WorkspaceService {
         attendees: ["jamie@example.com"],
       },
     });
-    await this.db.put(owner, "settings", { id: "google", enabled: true });
-    await this.db.put(owner, "settings", { id: "seeded", value: true });
   }
   async snapshot(owner: string, query?: string): Promise<Workspace> {
     let mail: Mail[], events: CalendarEvent[];
