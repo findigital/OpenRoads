@@ -10,8 +10,8 @@ import { sampleProfile } from "../apps/server/src/persona.ts";
 test("persona name and mailbox come from OPENROADS_PERSONA", () => {
   assert.deepEqual(sampleProfile(undefined), { name: "Alex", email: "alex@example.com" });
   assert.deepEqual(sampleProfile("  "), { name: "Alex", email: "alex@example.com" });
-  assert.deepEqual(sampleProfile("Paul Webster · Billing, AR & quick pay"), {
-    name: "Paul Webster · Billing, AR & quick pay",
+  assert.deepEqual(sampleProfile("Paul Webster · J&A Freight"), {
+    name: "Paul Webster · J&A Freight",
     email: "paul.webster@example.com",
   });
   assert.deepEqual(sampleProfile("Luis Ortega · Carrier Relations"), {
@@ -33,16 +33,16 @@ test("sample snapshot uses the persona instead of a hard-coded name", async () =
     intelligenceApiKey: "test-project-key-never-sent",
     googleRedirectUri: "http://localhost:8787/api/google/callback",
     allowedOrigins: [],
-    openroadsPersona: "Paul Webster · Billing, AR & quick pay",
+    openroadsPersona: "Paul Webster · J&A Freight",
   });
   try {
     await server.workspace.ensureSample("local-user", server.actions);
     await server.agent.ensure("local-user");
     const workspace = await server.workspace.snapshot("local-user");
     const identity = await server.agent.snapshot("local-user");
-    assert.equal(workspace.profile.name, "Paul Webster · Billing, AR & quick pay");
+    assert.equal(workspace.profile.name, "Paul Webster · J&A Freight");
     assert.equal(workspace.profile.email, "paul.webster@example.com");
-    assert.equal(identity.identity.name, "Paul Webster · Billing, AR & quick pay");
+    assert.equal(identity.identity.name, "Paul Webster · J&A Freight");
     assert.ok(workspace.mail.every((mail) => mail.to.includes("paul.webster@example.com")));
     assert.equal(
       workspace.connections.find((connection) => connection.id === "google")?.account,

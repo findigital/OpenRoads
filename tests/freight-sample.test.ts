@@ -13,7 +13,7 @@ import { extractFormValues } from "../apps/server/src/engine/form-values.ts";
 import type { ActionProposal } from "../packages/domain/src/index.ts";
 import { createCarrierProfilePdf, inspectPdf } from "../packages/integrations/src/pdf.ts";
 
-const persona = "Paul Webster · Billing, AR & quick pay";
+const persona = "Paul Webster · J&A Freight";
 
 test("carrier profile PDF is fillable and starts blank", async () => {
   const details = await inspectPdf(await createCarrierProfilePdf());
