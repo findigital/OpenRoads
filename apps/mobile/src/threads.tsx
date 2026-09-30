@@ -132,8 +132,8 @@ export function ThreadsSheet({ onClose }: { onClose: () => void }) {
   }
   return (
     <Sheet
-      title="OpenMuse"
-      subtitle={workspace.mode === "sample" ? "Your workspace" : workspace.profile.name}
+      title="OpenRoads"
+      subtitle={workspace.profile.name || "Your workspace"}
       onClose={onClose}
     >
       <View style={{ gap: 14 }}>

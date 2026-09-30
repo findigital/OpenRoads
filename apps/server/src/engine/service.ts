@@ -31,8 +31,10 @@ import type { Store } from "../db.ts";
 import { AppError } from "../errors.ts";
 import type { Files } from "../files.ts";
 import { backgroundFailure } from "../log.ts";
+import { sampleProfile } from "../persona.ts";
 import type { WorkspaceService } from "../workspace.ts";
 import { analyzeSpending } from "./finance.ts";
+import { extractFormValues, hasFieldValue, missingFieldsQuestion } from "./form-values.ts";
 import { executeModelTask } from "./model.ts";
 import { LostLeaseError, type TaskContext, TaskWorker } from "./worker.ts";
 
@@ -115,9 +117,10 @@ export class AgentService {
     }
   }
   async ensure(owner: string) {
+    const persona = this.config.openroadsPersona?.trim();
     await this.db.insertIfAbsent(owner, "agent-settings", {
       id: "identity",
-      name: "OpenMuse",
+      name: persona ? sampleProfile(persona).name : "OpenRoads",
       tone: "warm",
     });
   }
@@ -143,7 +146,12 @@ export class AgentService {
       memories,
       artifacts,
       notifications,
-      identity: identity ?? { name: "OpenMuse", tone: "warm" },
+      identity: identity ?? {
+        name: this.config.openroadsPersona?.trim()
+          ? sampleProfile(this.config.openroadsPersona).name
+          : "OpenRoads",
+        tone: "warm",
+      },
       worker: {
         running:
           this.worker.running ||
@@ -547,14 +555,17 @@ export class AgentService {
         (m) =>
           !obsolete("document", m.id) &&
           m.attachments.length &&
-          /form|permission|complete|fill|sign/i.test(`${m.subject} ${m.body}`),
+          /form|permission|complete|fill|sign|carrier|setup|packet/i.test(`${m.subject} ${m.body}`),
       )
       .slice(0, 5)) {
       const id = hash(`document:${mail.id}:${mail.body}`);
+      const freightPacket = /carrier|setup|packet/i.test(`${mail.subject} ${mail.body}`);
       const idea: Idea = {
         id,
         title: `I can help with ${mail.subject}`,
-        reason: `${mail.sender} sent a document that may need your attention. I can prepare it and a reply for your review.`,
+        reason: freightPacket
+          ? `${mail.sender} sent a carrier setup packet that may need your attention. I can prepare the form and a reply for your review.`
+          : `${mail.sender} sent a document that may need your attention. I can prepare it and a reply for your review.`,
         evidence: [this.mailEvidence(mail)],
         prompt: `Help complete the PDF from “${mail.subject}” and prepare a reply for review.`,
         kind: "document",
@@ -929,29 +940,37 @@ export class AgentService {
       });
       await ctx.event("step", "Found the document", file.name);
     }
-    const fields = z
+    const provided =
+      z
+        .record(z.string(), z.union([z.string(), z.boolean()]))
+        .optional()
+        .parse(task.input.fields) ?? {};
+    const file = await this.files.get(owner, source.fileId);
+    const supported = (file.fields ?? []).filter((field) => field.type !== "unsupported");
+    if (!supported.length)
+      throw new Error("This PDF has no supported fillable fields. Open it in Files to review it.");
+    const stored = z
       .record(z.string(), z.union([z.string(), z.boolean()]))
-      .optional()
-      .parse(task.input.fields);
-    if (!fields || !Object.keys(fields).length) {
-      const file = await this.files.get(owner, source.fileId);
-      const names = file.fields
-        ?.filter((f) => f.type !== "unsupported")
-        .map((f) => f.name)
-        .join(", ");
-      if (!names)
-        throw new Error(
-          "This PDF has no supported fillable fields. Open it in Files to review it.",
-        );
+      .safeParse(task.state.extractedFields);
+    const fromMail = stored.success ? stored.data : extractFormValues(source.mail.body, supported);
+    const merged = { ...fromMail, ...provided };
+    const missing = supported.filter((field) => !hasFieldValue(merged[field.name], field.type));
+    if (!Object.keys(provided).length && missing.length) {
       return {
         status: "waiting_input",
-        question: `Enter the form values you want to use. Supported fields: ${names}. The original PDF will stay intact.`,
+        question: missingFieldsQuestion(missing.map((field) => field.name)),
         state: {
           ...task.state,
           source,
-          missingFields: file.fields?.filter((f) => f.type !== "unsupported"),
+          extractedFields: fromMail,
+          missingFields: missing,
         },
       };
+    }
+    const fields: Record<string, string | boolean> = {};
+    for (const [key, value] of Object.entries(merged)) {
+      if (typeof value === "boolean" || (typeof value === "string" && value.trim()))
+        fields[key] = value;
     }
     let filledId = typeof task.state.filledId === "string" ? task.state.filledId : undefined;
     if (!filledId) {
@@ -977,7 +996,9 @@ export class AgentService {
         body:
           typeof task.input.reply === "string"
             ? task.input.reply
-            : "Hello,\n\nPlease find the completed form attached.\n\nThank you.",
+            : /carrier|setup|packet/i.test(`${source.mail.subject} ${source.mail.body}`)
+              ? "Hi,\n\nAttached is the completed carrier profile and setup packet for your file.\n\nTell us if you still need the W-9, insurance certs, or a signed rate con.\n\nThanks,"
+              : "Hello,\n\nPlease find the completed form attached.\n\nThank you.",
         attachmentIds: [filledId],
         threadId: source.mail.threadId,
         replyToMessageId: source.mail.id,

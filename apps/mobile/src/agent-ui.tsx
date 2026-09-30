@@ -902,7 +902,7 @@ export function DelegateSheet() {
   return (
     <Sheet
       title="Hand over an outcome"
-      subtitle="OpenMuse saves a plan and keeps working on the server."
+      subtitle="OpenRoads saves the plan and keeps working on the server after you leave the chat."
       onClose={close}
     >
       <View style={[s.row, { flexWrap: "wrap", gap: 8, marginBottom: 20 }]}>
@@ -1087,7 +1087,7 @@ function IdeaCard({ idea }: { idea: Idea }) {
         style={{ flexDirection: "row", gap: 14 }}
       >
         <Text style={{ fontSize: 27, width: 34, paddingTop: 3 }}>
-          {/document|permission|form/i.test(idea.title)
+          {/document|permission|form|carrier|setup|packet/i.test(idea.title)
             ? "📋"
             : /money|spend|saving/i.test(idea.title)
               ? "💸"
@@ -1107,7 +1107,7 @@ function IdeaCard({ idea }: { idea: Idea }) {
           <EvidenceList items={idea.evidence} />
           {editing && (
             <Field
-              label="What should OpenMuse do?"
+              label="What needs to move next?"
               value={prompt}
               onChangeText={setPrompt}
               multiline
@@ -1514,7 +1514,7 @@ function MonitorForm({ onDone }: { onDone: () => void }) {
       <Text style={[s.small, { marginBottom: 14 }]}>
         {sample
           ? "Changes to this built-in page stay in your workspace."
-          : "OpenMuse checks this public page on the server and saves meaningful changes in Notifications."}
+          : "OpenRoads watches this public page on the server and posts real changes in Notifications."}
       </Text>
       <ErrorNotice error={error} />
       <Button
@@ -1666,7 +1666,7 @@ export function AppsScreen() {
   const { data, mutate } = useAgentWorkspace();
   const [query, setQuery] = useState("");
   const [settings, setSettings] = useState(false);
-  const [name, setName] = useState(data?.identity.name || "OpenMuse");
+  const [name, setName] = useState(data?.identity.name || "OpenRoads");
   const [tone, setTone] = useState(data?.identity.tone || "warm");
   const [avatar, setAvatar] = useState(data?.identity.avatar || "sky");
   const [showChatUpdates, setShowChatUpdates] = useState(data?.identity.showChatUpdates !== false);

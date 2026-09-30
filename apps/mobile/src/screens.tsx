@@ -324,9 +324,10 @@ export function TodayScreen() {
             Start with a thought. We’ll take it from there.
           </Text>
           {[
-            "What needs my attention today?",
-            "Help me catch up on my inbox",
-            "Show my recent documents",
+            "Work the new carrier setup packet",
+            "What's on the board today?",
+            "Pull this carrier's MC/USDOT authority on FMCSA",
+            "Watch diesel and flag a jump",
           ].map((prompt) => (
             <Pressable
               key={prompt}
@@ -1368,7 +1369,7 @@ export function ConnectionsScreen({ query = "" }: { query?: string }) {
                 has not been configured.
               </Text>
               <Text style={s.muted}>
-                Your current computer uses OpenMuse’s persistent Chromium worker. OpenBot
+                Your current computer uses OpenRoads’s persistent Chromium worker. OpenBot
                 integration will expand the execution backend while keeping this interface.
               </Text>
             </View>

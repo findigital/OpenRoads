@@ -2,7 +2,6 @@ import { ArrowUpRight, Check, ChevronRight, type LucideIcon, X } from "lucide-re
 import type { ReactNode } from "react";
 import {
   ActivityIndicator,
-  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -15,6 +14,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Circle, Path } from "react-native-svg";
 export const colors = {
   canvas: "#FCFCFC",
   card: "#FFFFFF",
@@ -23,6 +23,8 @@ export const colors = {
   line: "#EEEEF0",
   blue: "#C8E7FF",
   blueDark: "#1473C8",
+  navy: "#0B2138",
+  gold: "#FFC20D",
   sky: "#EDF7FD",
   green: "#E3F3E8",
   lavender: "#F0EEFA",
@@ -74,7 +76,7 @@ export const s = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 24,
   },
-  primary: { backgroundColor: colors.blue },
+  primary: { backgroundColor: colors.gold },
   secondary: { backgroundColor: "#F1F2F3" },
   buttonText: { fontSize: 14, fontWeight: "600" },
   chip: {
@@ -399,38 +401,37 @@ export function LinkRow({
     </Pressable>
   );
 }
-/** OpenMuse's original capybara, shared by every assistant surface. */
+/** Original road mark: a gold route on navy. The variant prop is kept for avatar settings. */
 export function Mascot({
   size = 42,
-  variant = "sky",
+  variant: _variant = "sky",
 }: {
   size?: number;
   variant?: "sky" | "sand" | "lilac";
 }) {
-  const palette = {
-    sky: "#ECF5FA",
-    sand: "#FAF0DF",
-    lilac: "#F1ECF9",
-  }[variant];
   return (
-    <View accessibilityLabel="OpenMuse capybara" style={{ width: size, height: size }}>
-      <View
-        style={{
-          position: "absolute",
-          top: size * 0.15,
-          left: size * 0.12,
-          width: size * 0.76,
-          height: size * 0.76,
-          borderRadius: size,
-          backgroundColor: palette,
-        }}
-      />
-      <Image
-        source={require("../assets/capybara.png")}
-        resizeMode="contain"
-        style={{ width: size, height: size }}
-        accessible={false}
-      />
+    <View accessibilityLabel="OpenRoads" style={{ width: size, height: size }}>
+      <Svg width={size} height={size} viewBox="0 0 64 64">
+        <Circle cx="32" cy="32" r="32" fill={colors.navy} />
+        <Path d="M32 12v16" stroke={colors.gold} strokeWidth={4} strokeLinecap="round" />
+        <Path
+          d="M32 28C26 34 18 40 12 50"
+          stroke={colors.gold}
+          strokeWidth={4}
+          strokeLinecap="round"
+          fill="none"
+        />
+        <Path
+          d="M32 28C38 34 46 40 52 50"
+          stroke={colors.gold}
+          strokeWidth={4}
+          strokeLinecap="round"
+          fill="none"
+        />
+        <Circle cx="32" cy="12" r="3.2" fill={colors.gold} />
+        <Circle cx="12" cy="50" r="3.2" fill={colors.gold} />
+        <Circle cx="52" cy="50" r="3.2" fill={colors.gold} />
+      </Svg>
     </View>
   );
 }
