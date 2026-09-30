@@ -699,7 +699,7 @@ function FinanceArtifact({ artifact }: { artifact: AgentArtifact }) {
     try {
       await mutate("/goals", {
         title: goalTitle.trim(),
-        category: "Finances",
+        category: "Settlements",
         description: `Inspired by ${artifact.title}: ${artifact.summary}`,
         milestones: ["Choose a savings target", "Review spending each week"],
       });
@@ -1192,7 +1192,7 @@ export function GoalsScreen() {
         ))}
         {!monitors.length && (
           <Text style={[s.muted, { paddingVertical: 10 }]}>
-            A lane rate, a COI date, a public page you need watched.
+            Watch a lane rate, a COI date, or a public page that matters to a load.
           </Text>
         )}
         {monitors.length > 3 && (
@@ -1239,7 +1239,9 @@ export function GoalsScreen() {
           </Pressable>
         ))}
         {!data?.goals.length && (
-          <Text style={[s.muted, { paddingVertical: 10 }]}>Start with one tracked goal.</Text>
+          <Text style={[s.muted, { paddingVertical: 10 }]}>
+            Start with one goal tied to a lane, carrier, or settlement.
+          </Text>
         )}
       </View>
       <View style={{ height: 1, backgroundColor: colors.line }} />
@@ -1247,7 +1249,7 @@ export function GoalsScreen() {
       {[
         { name: "Lanes", icon: Heart },
         { name: "Carriers", icon: Users },
-        { name: "Cash", icon: CircleDollarSign },
+        { name: "Settlements", icon: CircleDollarSign },
         { name: "Something else", icon: Target },
       ].map((item) => (
         <Pressable
