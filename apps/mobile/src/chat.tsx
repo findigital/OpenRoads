@@ -459,7 +459,11 @@ export function ChatScreen({
                 "Pull this carrier's MC/USDOT authority on FMCSA",
                 "Watch diesel and flag a jump",
               ].map((prompt) => (
-                <Button key={prompt} onPress={() => enqueue(prompt)}>
+                <Button
+                  key={prompt}
+                  onPress={() => enqueue(prompt)}
+                  textStyle={{ flex: 1, textAlign: "center" }}
+                >
                   {prompt}
                 </Button>
               ))}

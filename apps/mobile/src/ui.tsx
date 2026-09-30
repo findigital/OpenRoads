@@ -9,6 +9,7 @@ import {
   Text,
   TextInput,
   type TextInputProps,
+  type TextStyle,
   useWindowDimensions,
   View,
   type ViewStyle,
@@ -124,6 +125,7 @@ export function Button({
   small,
   danger,
   style,
+  textStyle,
 }: {
   children: ReactNode;
   onPress: () => void;
@@ -134,6 +136,7 @@ export function Button({
   small?: boolean;
   danger?: boolean;
   style?: ViewStyle;
+  textStyle?: TextStyle;
 }) {
   const color = danger ? colors.danger : colors.text;
   return (
@@ -156,7 +159,7 @@ export function Button({
       ) : Icon ? (
         <Icon size={15} color={color} />
       ) : null}
-      <Text style={[s.buttonText, { color }]}>{children}</Text>
+      <Text style={[s.buttonText, { color }, textStyle]}>{children}</Text>
     </Pressable>
   );
 }
