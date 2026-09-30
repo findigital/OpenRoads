@@ -526,8 +526,8 @@ export function MailScreen() {
           ) : (
             <Empty
               icon={Mail}
-              title="A fresh page"
-              detail="Messages you save as drafts will be here when you’re ready."
+              title="No drafts yet"
+              detail="Saved replies and packets sit here until you send."
             />
           )
         ) : items.length ? (
@@ -970,7 +970,7 @@ export function FilesScreen() {
     <View style={{ gap: 20 }}>
       <View style={s.between}>
         <Text style={[s.muted, { flex: 1, marginRight: 15 }]}>
-          Documents, with a little room to work.
+          PDFs, forms, and filled packets.
         </Text>
         <Button primary icon={Upload} busy={busy} onPress={() => void upload()}>
           Import PDF
@@ -1153,8 +1153,8 @@ export function ActivityScreen() {
           ) : (
             <Empty
               icon={Clock3}
-              title="The beginning of something lighter"
-              detail="Your actions and their results will be recorded here."
+              title="No activity yet"
+              detail="Packets, checks, and results you run will show up here."
             />
           )}
         </Card>
@@ -1163,7 +1163,7 @@ export function ActivityScreen() {
         <Card>
           <Empty
             icon={ShieldCheck}
-            title="You’re all caught up"
+            title="Board is clear"
             detail="When an email or calendar change needs your approval, it will appear here."
           />
         </Card>

@@ -268,8 +268,8 @@ function EmailEditor({ draft }: { draft?: Partial<EmailDraft> & { id?: string } 
   }
   return (
     <Sheet
-      title={draft?.threadId ? "Write a reply" : "A new message"}
-      subtitle={`From ${w.profile.email} · saved privately in OpenRoads`}
+      title={draft?.threadId ? "Write a reply" : "New message"}
+      subtitle={`From ${w.profile.email} · kept in OpenRoads`}
       onClose={close}
     >
       <Field
@@ -304,14 +304,14 @@ function EmailEditor({ draft }: { draft?: Partial<EmailDraft> & { id?: string } 
         label="Subject"
         value={subject}
         onChangeText={setSubject}
-        placeholder="What’s on your mind?"
+        placeholder="Subject (load #, lane, or carrier)"
       />
       <Field
         label="Message"
         value={body}
         onChangeText={setBody}
         multiline
-        placeholder="Start your message…"
+        placeholder="Write the reply…"
         style={{ minHeight: 210 }}
       />
       {w.files.length > 0 && (

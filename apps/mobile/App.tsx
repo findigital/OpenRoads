@@ -272,7 +272,7 @@ function WorkspaceShell({
         : activeTask.plan.find((step) => step.status === "running")?.title || activeTask.title
     : data?.tasks.some((task) => task.status === "queued")
       ? "Picking up your next task…"
-      : "Here when you need me";
+      : "Standing by for the next packet";
   const title = titles[section] || titles.apps;
   const Screen =
     section === "mail"
