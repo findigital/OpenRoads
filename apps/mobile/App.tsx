@@ -114,7 +114,7 @@ export default function App() {
               Welcome to OpenRoads.
             </Text>
             <Text style={[s.muted, { textAlign: "center", color: colors.navy }]}>
-              Prepared for J&A Freight Systems · demo with fictional data
+              Built for J&A Freight Systems.
             </Text>
             {busy ? (
               <ActivityIndicator color={colors.blueDark} />
@@ -303,14 +303,14 @@ function WorkspaceShell({
               marginHorizontal: 20,
             }}
           >
-            <View style={{ position: "absolute", left: 0, top: 16 }}>
+            <View style={{ position: "absolute", left: 0, top: 16, zIndex: 2 }}>
               <IconButton
                 icon={Menu}
                 label="Open conversations and menu"
                 onPress={() => setThreadsOpen(true)}
               />
             </View>
-            <View style={{ alignItems: "center", gap: 1 }}>
+            <View pointerEvents="box-none" style={{ alignItems: "center", gap: 1 }}>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`Open ${agentName} activity and approvals`}
@@ -341,7 +341,7 @@ function WorkspaceShell({
               </Pressable>
               {section === "chat" && <ComputerEntry />}
             </View>
-            <View style={{ position: "absolute", right: 0, top: 16 }}>
+            <View style={{ position: "absolute", right: 0, top: 16, zIndex: 2 }}>
               <IconButton
                 icon={Bell}
                 label={`Notifications, ${pending} unread or pending`}

@@ -443,14 +443,14 @@ export function ChatScreen({
                 maxWidth: 350,
               }}
             >
-              Dispatch help. More room for the board.
+              Your board, worked.
             </Text>
             <Text style={[s.muted, { maxWidth: 320, textAlign: "center", lineHeight: 23 }]}>
-              Prepared for J&A Freight Systems · demo with fictional data
+              Built for J&A Freight Systems.
             </Text>
             <Text style={[s.muted, { maxWidth: 320, textAlign: "center", lineHeight: 23 }]}>
-              What’s on the board? I can plan the work, pull your apps, and use the computer when a
-              form or page needs hands.
+              What’s on the board? I plan the work, pull your apps, and use the computer when a form
+              or page needs hands.
             </Text>
             <View style={{ width: "100%", maxWidth: 360, marginTop: 14, gap: 8 }}>
               {[
