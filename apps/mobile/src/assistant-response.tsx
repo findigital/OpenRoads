@@ -1,7 +1,13 @@
 import { useCallback, useState } from "react";
-import { Linking, Text, type TextStyle } from "react-native";
-import Markdown, { type MarkdownStyles, type RenderRules } from "react-native-markdown-renderer";
+import { Linking, Text } from "react-native";
+import Markdown, {
+  type ASTNode,
+  type MarkdownStyles,
+  type RenderRules,
+} from "react-native-markdown-renderer";
 import { assistantMarkdown, isSafeAssistantUrl } from "./assistant-markdown";
+import { parseSnippet, promoteBareJsonBlocks } from "./snippet";
+import { CodeCard, SnippetCard } from "./snippet-card";
 import { colors, ErrorNotice } from "./ui";
 
 const textStyle = { color: colors.text, fontSize: 16, lineHeight: 24 };
@@ -15,13 +21,22 @@ const style: Partial<MarkdownStyles> = {
   heading3: { fontSize: 17, lineHeight: 23 },
   link: { color: colors.blueDark, textDecorationLine: "underline" },
   codeInline: { backgroundColor: "#E2E4E7", color: colors.text },
-  codeBlock: { backgroundColor: "#E2E4E7", color: colors.text },
+  root: { minWidth: 0, maxWidth: "100%" },
 };
-const renderCodeBlock: RenderRules["fence"] = (node, _children, _parent, styles) => (
-  <Text key={node.key} selectable style={styles.codeBlock as TextStyle}>
-    {node.content.replace(/\n$/, "")}
-  </Text>
-);
+
+function fenceKey(node: ASTNode): string {
+  const code = node.content;
+  return `${node.tokenIndex}:${node.sourceInfo}:${code.length}:${code.slice(0, 32)}:${code.slice(-16)}`;
+}
+
+const renderCodeBlock: RenderRules["fence"] = (node) => {
+  const code = node.content.replace(/\n$/, "");
+  const key = fenceKey(node);
+  const snippet = parseSnippet(code, node.sourceInfo);
+  if (snippet) return <SnippetCard key={key} model={snippet} />;
+  return <CodeCard key={key} code={code} language={node.sourceInfo} />;
+};
+
 const rules: RenderRules = {
   textgroup: (node, children) => (
     <Text key={node.key} selectable style={textStyle}>
@@ -55,7 +70,7 @@ export function AssistantResponse({ content }: { content: string }) {
         rules={rules}
         onLinkPress={onLinkPress}
       >
-        {content}
+        {promoteBareJsonBlocks(content)}
       </Markdown>
       <ErrorNotice error={linkError} />
     </>
