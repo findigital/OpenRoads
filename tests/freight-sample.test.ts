@@ -13,7 +13,7 @@ import { extractFormValues } from "../apps/server/src/engine/form-values.ts";
 import type { ActionProposal } from "../packages/domain/src/index.ts";
 import { createCarrierProfilePdf, inspectPdf } from "../packages/integrations/src/pdf.ts";
 
-const persona = "Dana Brooks · Billing, AR & quick pay";
+const persona = "Paul Webster · J&A Freight";
 
 test("carrier profile PDF is fillable and starts blank", async () => {
   const details = await inspectPdf(await createCarrierProfilePdf());
@@ -73,7 +73,7 @@ test("carrier packet asks only for cargo limit and remit-to, then stops for revi
   try {
     await server.workspace.ensureSample(owner, server.actions);
     const workspace = await server.workspace.snapshot(owner);
-    assert.equal(workspace.profile.email, "dana.brooks@example.com");
+    assert.equal(workspace.profile.email, "paul.webster@example.com");
     assert.equal(workspace.mail.length, 6);
     assert.deepEqual(workspace.mail.map((mail) => mail.subject).sort(), [
       "Carrier invoice for load #JA-48190",

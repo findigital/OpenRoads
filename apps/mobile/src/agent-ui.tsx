@@ -204,8 +204,8 @@ export function AgentActivityScreen() {
       {!tasks.length && (
         <Empty
           icon={ListChecks}
-          title="A place for the work"
-          detail="Delegate a task in Chat. Its plan, progress and results stay here."
+          title="Where delegated work lives"
+          detail="Hand off a task in Chat. Plan, progress, and results stay on this board."
         />
       )}
       <SectionHeading title="Reviews & receipts" />
@@ -901,19 +901,23 @@ export function DelegateSheet() {
   }
   return (
     <Sheet
-      title="Hand over an outcome"
+      title="Hand off the work"
       subtitle="OpenRoads saves the plan and keeps working on the server after you leave the chat."
       onClose={close}
     >
       <View style={[s.row, { flexWrap: "wrap", gap: 8, marginBottom: 20 }]}>
         {(["plan", "document", "finance", "agent"] as const).map((item) => (
           <Button small primary={kind === item} key={item} onPress={() => setKind(item)}>
-            {item === "agent" ? "General task" : statusLabel(item)}
+            {item === "agent"
+              ? "General task"
+              : item === "finance"
+                ? "Settlements"
+                : statusLabel(item)}
           </Button>
         ))}
       </View>
       <Field
-        label="What would you like done?"
+        label="What should get done?"
         value={prompt}
         onChangeText={setPrompt}
         multiline
@@ -921,8 +925,8 @@ export function DelegateSheet() {
           kind === "document"
             ? "Fill the attached form and prepare a reply for my review"
             : kind === "finance"
-              ? "Summarize my spending and suggest a savings plan"
-              : "Make a practical plan for my week"
+              ? "Check detention on load #JA-48190 before we approve pay"
+              : "Work the carrier setup packet for Northline"
         }
       />
       {kind === "document" && (
@@ -1014,9 +1018,9 @@ export function IdeasScreen() {
     <View style={{ gap: 20 }}>
       <AgentStatus />
       <View style={s.between}>
-        <Text style={s.small}>Inspired by your connected apps</Text>
+        <Text style={s.small}>From your connected apps</Text>
         <Button small icon={RefreshCw} busy={busy} onPress={() => void refreshIdeas()}>
-          Find ideas
+          Find work
         </Button>
       </View>
       <ErrorNotice error={error} />
@@ -1026,8 +1030,8 @@ export function IdeasScreen() {
       {!ideas.length && (
         <Empty
           icon={Lightbulb}
-          title="Room for a good idea"
-          detail="Find ideas from the sources you have granted access to. Each suggestion includes its evidence."
+          title="Nothing queued"
+          detail="Find work from the sources you have granted access to. Each suggestion includes its evidence."
         />
       )}
       {(data?.ideas || [])
@@ -1188,7 +1192,7 @@ export function GoalsScreen() {
         ))}
         {!monitors.length && (
           <Text style={[s.muted, { paddingVertical: 10 }]}>
-            Ticket prices, a reservation, a page you’re watching.
+            A lane rate, a COI date, a public page you need watched.
           </Text>
         )}
         {monitors.length > 3 && (
@@ -1235,17 +1239,15 @@ export function GoalsScreen() {
           </Pressable>
         ))}
         {!data?.goals.length && (
-          <Text style={[s.muted, { paddingVertical: 10 }]}>
-            Big plans start with one small step.
-          </Text>
+          <Text style={[s.muted, { paddingVertical: 10 }]}>Start with one tracked goal.</Text>
         )}
       </View>
       <View style={{ height: 1, backgroundColor: colors.line }} />
       <Text style={s.heading}>Create a goal</Text>
       {[
-        { name: "Health", icon: Heart },
-        { name: "Relationships", icon: Users },
-        { name: "Finances", icon: CircleDollarSign },
+        { name: "Lanes", icon: Heart },
+        { name: "Carriers", icon: Users },
+        { name: "Cash", icon: CircleDollarSign },
         { name: "Something else", icon: Target },
       ].map((item) => (
         <Pressable
@@ -1653,8 +1655,8 @@ export function NotificationsSheet() {
         {!data?.notifications.length && (
           <Empty
             icon={Bell}
-            title="You're all caught up"
-            detail="Results, meaningful changes and requests for your input will appear here."
+            title="Board is clear"
+            detail="Results, watched-page changes, and items that need your sign-off land here."
           />
         )}
       </View>

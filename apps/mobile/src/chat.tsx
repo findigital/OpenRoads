@@ -443,14 +443,14 @@ export function ChatScreen({
                 maxWidth: 350,
               }}
             >
-              A little help. A lot more room for life.
+              Your board, worked.
             </Text>
             <Text style={[s.muted, { maxWidth: 320, textAlign: "center", lineHeight: 23 }]}>
-              Prepared for J&A Freight Systems · demo with fictional data
+              Built for J&A Freight Systems.
             </Text>
             <Text style={[s.muted, { maxWidth: 320, textAlign: "center", lineHeight: 23 }]}>
-              Tell me what’s on your mind. I can make a plan, work with your apps, and use my
-              computer to help.
+              What’s on the board? I plan the work, pull your apps, and use the computer when a form
+              or page needs hands.
             </Text>
             <View style={{ width: "100%", maxWidth: 360, marginTop: 14, gap: 8 }}>
               {[
@@ -459,7 +459,11 @@ export function ChatScreen({
                 "Pull this carrier's MC/USDOT authority on FMCSA",
                 "Watch diesel and flag a jump",
               ].map((prompt) => (
-                <Button key={prompt} onPress={() => enqueue(prompt)}>
+                <Button
+                  key={prompt}
+                  onPress={() => enqueue(prompt)}
+                  textStyle={{ flex: 1, textAlign: "center" }}
+                >
                   {prompt}
                 </Button>
               ))}
