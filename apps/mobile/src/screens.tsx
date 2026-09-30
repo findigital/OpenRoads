@@ -1164,7 +1164,7 @@ export function ActivityScreen() {
           <Empty
             icon={ShieldCheck}
             title="Board is clear"
-            detail="When an email or calendar change needs your approval, it will appear here."
+            detail="When mail or a calendar change needs your sign-off, it lands here."
           />
         </Card>
       )}

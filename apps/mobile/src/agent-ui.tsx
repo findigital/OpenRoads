@@ -925,7 +925,7 @@ export function DelegateSheet() {
           kind === "document"
             ? "Fill the attached form and prepare a reply for my review"
             : kind === "finance"
-              ? "Summarize my spending and suggest a savings plan"
+              ? "Check detention on load #JA-48190 before we approve pay"
               : "Work the carrier setup packet for Northline"
         }
       />
@@ -1030,7 +1030,7 @@ export function IdeasScreen() {
       {!ideas.length && (
         <Empty
           icon={Lightbulb}
-          title="Room for a good idea"
+          title="Nothing queued"
           detail="Find work from the sources you have granted access to. Each suggestion includes its evidence."
         />
       )}
