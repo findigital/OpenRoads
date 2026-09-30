@@ -13,7 +13,7 @@ import { extractFormValues } from "../apps/server/src/engine/form-values.ts";
 import type { ActionProposal } from "../packages/domain/src/index.ts";
 import { createCarrierProfilePdf, inspectPdf } from "../packages/integrations/src/pdf.ts";
 
-const persona = "Dana Brooks · Billing & AR";
+const persona = "Dana Brooks · Billing, AR & quick pay";
 
 test("carrier profile PDF is fillable and starts blank", async () => {
   const details = await inspectPdf(await createCarrierProfilePdf());
@@ -145,7 +145,7 @@ test("carrier packet asks only for cargo limit and remit-to, then stops for revi
             {
               id: "freight-message",
               role: "user",
-              content: "Handle the new carrier setup packet",
+              content: "Work the new carrier setup packet",
             },
           ],
           tools: [],
@@ -159,6 +159,7 @@ test("carrier packet asks only for cargo limit and remit-to, then stops for revi
     const taskId = JSON.parse(result.content).id as string;
     await server.agent.worker.tick();
     const waiting = await server.agent.getTask(owner, taskId);
+    assert.equal(waiting.title, "Carrier setup packet");
     assert.equal(waiting.status, "waiting_input");
     assert.match(waiting.question ?? "", /cargo limit/i);
     assert.match(waiting.question ?? "", /remit-to/i);
@@ -204,7 +205,10 @@ test("carrier packet asks only for cargo limit and remit-to, then stops for revi
     };
     assert.deepEqual(data.to, ["dispatch@northline.test"]);
     assert.equal(data.subject, "Re: New carrier setup packet");
-    assert.match(data.body, /Carrier Profile & Setup Form/);
+    assert.equal(
+      data.body,
+      "Hi,\n\nAttached is the completed carrier profile and setup packet for your file.\n\nTell us if you still need the W-9, insurance certs, or a signed rate con.\n\nThanks,",
+    );
     assert.deepEqual(data.attachmentIds, [reviewed.files[0].id]);
     assert.equal(
       (await server.workspace.snapshot(owner)).mail.some((mail) => mail.subject.startsWith("Re:")),

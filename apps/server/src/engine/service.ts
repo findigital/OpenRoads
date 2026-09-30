@@ -997,7 +997,7 @@ export class AgentService {
           typeof task.input.reply === "string"
             ? task.input.reply
             : /carrier|setup|packet/i.test(`${source.mail.subject} ${source.mail.body}`)
-              ? "Hello,\n\nPlease find the completed Carrier Profile & Setup Form attached.\n\nThank you."
+              ? "Hi,\n\nAttached is the completed carrier profile and setup packet for your file.\n\nTell us if you still need the W-9, insurance certs, or a signed rate con.\n\nThanks,"
               : "Hello,\n\nPlease find the completed form attached.\n\nThank you.",
         attachmentIds: [filledId],
         threadId: source.mail.threadId,

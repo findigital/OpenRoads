@@ -454,10 +454,10 @@ export function ChatScreen({
             </Text>
             <View style={{ width: "100%", maxWidth: 360, marginTop: 14, gap: 8 }}>
               {[
-                "Handle the new carrier setup packet",
-                "What needs my attention today?",
-                "Look up this carrier's authority on FMCSA",
-                "Watch the diesel price",
+                "Work the new carrier setup packet",
+                "What's on the board today?",
+                "Pull this carrier's MC/USDOT authority on FMCSA",
+                "Watch diesel and flag a jump",
               ].map((prompt) => (
                 <Button key={prompt} onPress={() => enqueue(prompt)}>
                   {prompt}

@@ -257,7 +257,7 @@ function EmailEditor({ draft }: { draft?: Partial<EmailDraft> & { id?: string } 
           ...(draft?.id ? { id: draft.id } : {}),
         });
         await refresh();
-        notify("Draft saved in OpenRoads.");
+        notify("Draft saved.");
         close();
       }
     } catch (e) {

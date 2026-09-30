@@ -379,7 +379,7 @@ export class ConversationAgent extends AbstractAgent {
           : "What would you like to take off your plate? I can prepare the permission slip, keep an eye on a website, or organize your spending. For open-ended requests, connect a model in Apps.",
       };
     // setup|packet covers the carrier packet prompt. Bare "carrier" would also match
-    // "Look up this carrier's authority on FMCSA", which is not a document task.
+    // "Pull this carrier's MC/USDOT authority on FMCSA", which is not a document task.
     if (
       /permission|pdf|form|setup|packet/i.test(prompt) ||
       (/carrier/i.test(prompt) && /handle|complete|fill|form|pdf/i.test(prompt))
@@ -398,7 +398,7 @@ export class ConversationAgent extends AbstractAgent {
         {
           kind: "document",
           prompt,
-          title: freight ? "Handle the carrier setup packet" : "Complete the permission slip",
+          title: freight ? "Carrier setup packet" : "Complete the permission slip",
           input: { messageId: mail.id },
         },
         key,
