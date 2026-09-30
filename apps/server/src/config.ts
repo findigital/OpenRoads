@@ -17,7 +17,7 @@ if (existsSync(".env")) {
   process.loadEnvFile(".env");
   if (shadowed.length)
     console.warn(
-      `[OpenMuse] Using ${shadowed.join(", ")} from the environment instead of .env. ` +
+      `[OpenRoads] Using ${shadowed.join(", ")} from the environment instead of .env. ` +
         (shadowed.length === 1
           ? "Unset it to use the .env value."
           : "Unset them to use the .env values."),
@@ -53,13 +53,15 @@ export interface Config {
   computerImage?: string;
   computerDeploymentId?: string;
   allowedOrigins: string[];
+  /** When set, sample mode uses this profile name and a derived @example.com address. */
+  openroadsPersona?: string;
 }
 
 /** Pinned so live rankings do not shift when TypeSafe moves the `jev-latest` alias. */
 export const defaultJevModel = "jev-1.13.0";
 
 export const intelligenceKeyRequiredMessage =
-  "OpenMuse requires CPK_INTELLIGENCE_API_KEY. " +
+  "OpenRoads requires CPK_INTELLIGENCE_API_KEY. " +
   "Run `npx copilotkit@latest login` and `npx copilotkit@latest project select`, " +
   "then set the generated server-only key. " +
   "See https://docs.copilotkit.ai/intelligence/connect-your-runtime";
@@ -137,6 +139,7 @@ export function readConfig(): Config {
     computerEnabled: process.env.COMPUTER_ENABLED === "true",
     computerImage: process.env.COMPUTER_IMAGE ?? "openmuse-computer:local",
     computerDeploymentId: process.env.COMPUTER_DEPLOYMENT_ID,
+    openroadsPersona: process.env.OPENROADS_PERSONA?.trim() || undefined,
     allowedOrigins: (
       process.env.ALLOWED_ORIGINS ?? "http://localhost:8081,http://127.0.0.1:8081"
     ).split(","),

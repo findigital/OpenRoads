@@ -100,7 +100,7 @@ export default function App() {
         <SafeAreaView
           style={{
             flex: 1,
-            backgroundColor: colors.canvas,
+            backgroundColor: "#F1F5FA",
             justifyContent: "center",
             alignItems: "center",
             padding: 24,
@@ -109,11 +109,13 @@ export default function App() {
           <View style={{ width: "100%", maxWidth: 420, gap: 22, alignItems: "center" }}>
             <Mascot size={72} />
             <Text
-              style={{ fontSize: 32, color: colors.text, letterSpacing: -1, fontWeight: "500" }}
+              style={{ fontSize: 32, color: colors.navy, letterSpacing: -1, fontWeight: "500" }}
             >
-              Welcome to OpenMuse.
+              Welcome to OpenRoads.
             </Text>
-            <Text style={[s.muted, { textAlign: "center" }]}>A little room for your day.</Text>
+            <Text style={[s.muted, { textAlign: "center", color: colors.navy }]}>
+              Prepared for J&A Freight Systems · demo with fictional data
+            </Text>
             {busy ? (
               <ActivityIndicator color={colors.blueDark} />
             ) : (
@@ -130,7 +132,7 @@ export default function App() {
                   Open workspace
                 </Button>
                 <Text style={[s.small, { marginTop: 15 }]}>
-                  Local workspaces open without a key. Make sure your OpenMuse server is running at{" "}
+                  Local workspaces open without a key. Make sure your OpenRoads server is running at{" "}
                   {API_URL}.
                 </Text>
               </Card>
@@ -261,7 +263,7 @@ function WorkspaceShell({
     data?.tasks.find(
       (task) => task.status === "waiting_approval" || task.status === "waiting_input",
     ) || data?.tasks.find((task) => task.status === "running");
-  const agentName = data?.identity.name || "OpenMuse";
+  const agentName = data?.identity.name || "OpenRoads";
   const status = activeTask
     ? activeTask.status === "waiting_approval"
       ? `Ready to review · ${activeTask.title}`
@@ -324,7 +326,7 @@ function WorkspaceShell({
                   style={{
                     fontSize: 16,
                     fontWeight: "600",
-                    color: colors.text,
+                    color: colors.navy,
                     letterSpacing: -0.4,
                   }}
                 >

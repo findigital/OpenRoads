@@ -31,6 +31,7 @@ import type { Store } from "../db.ts";
 import { AppError } from "../errors.ts";
 import type { Files } from "../files.ts";
 import { backgroundFailure } from "../log.ts";
+import { sampleProfile } from "../persona.ts";
 import type { WorkspaceService } from "../workspace.ts";
 import { analyzeSpending } from "./finance.ts";
 import { executeModelTask } from "./model.ts";
@@ -115,9 +116,10 @@ export class AgentService {
     }
   }
   async ensure(owner: string) {
+    const persona = this.config.openroadsPersona?.trim();
     await this.db.insertIfAbsent(owner, "agent-settings", {
       id: "identity",
-      name: "OpenMuse",
+      name: persona ? sampleProfile(persona).name : "OpenRoads",
       tone: "warm",
     });
   }
@@ -143,7 +145,12 @@ export class AgentService {
       memories,
       artifacts,
       notifications,
-      identity: identity ?? { name: "OpenMuse", tone: "warm" },
+      identity: identity ?? {
+        name: this.config.openroadsPersona?.trim()
+          ? sampleProfile(this.config.openroadsPersona).name
+          : "OpenRoads",
+        tone: "warm",
+      },
       worker: {
         running:
           this.worker.running ||

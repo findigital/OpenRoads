@@ -18,6 +18,7 @@ import type { Store } from "./db.ts";
 import { AppError } from "./errors.ts";
 import type { Files } from "./files.ts";
 import type { GoogleAuth } from "./google-auth.ts";
+import { sampleProfile } from "./persona.ts";
 
 export class WorkspaceService {
   private seeding = new Map<string, Promise<void>>();
@@ -41,7 +42,7 @@ export class WorkspaceService {
       );
       return value?.enabled === false
         ? null
-        : { id: value?.connectionId ?? "sample-google", account: "alex@example.com" };
+        : { id: value?.connectionId ?? "sample-google", account: this.sampleAccount().email };
     }
     const tokens = await this.googleAuth.tokens(owner);
     return tokens ? { id: tokens.connectionId, account: tokens.account } : null;
@@ -140,8 +141,12 @@ export class WorkspaceService {
     this.seeding.set(owner, task);
     await task;
   }
+  private sampleAccount() {
+    return sampleProfile(this.config.openroadsPersona);
+  }
   private async seed(owner: string, actions: ActionService) {
     if (await this.db.get(owner, "settings", "seeded")) return;
+    const account = this.sampleAccount().email;
     const file = await this.files.import(
       owner,
       "Field trip permission slip.pdf",
@@ -160,7 +165,7 @@ export class WorkspaceService {
         threadId: "trip-thread",
         sender: "Lincoln Middle School",
         from: "office@lincoln.example",
-        to: ["alex@example.com"],
+        to: [account],
         subject: "A little reminder: permission slips are due Friday",
         body: "Hi Alex,\n\nOur class is heading to the aquarium this Friday. Please complete the attached permission slip and send it back when you have a moment.\n\nWe’ll leave school at 8:15 AM and return by 4:30 PM. Please pack lunch and a water bottle.\n\nThank you!\nMs. Rivera\n\nThis message is included with your local workspace.",
         date: at(8, 42),
@@ -173,7 +178,7 @@ export class WorkspaceService {
         threadId: "design-thread",
         sender: "Jamie Chen",
         from: "jamie@example.com",
-        to: ["alex@example.com"],
+        to: [account],
         subject: "Coffee and a catch-up?",
         body: "Hey Alex,\n\nWould love to catch up this week. I’m free Thursday afternoon. How does 3 PM at Bluebird Coffee sound?\n\nJamie\n\nThis invitation is part of your local workspace.",
         date: at(8, 15),
@@ -186,9 +191,9 @@ export class WorkspaceService {
         threadId: "stay-thread",
         sender: "The Seabird",
         from: "stay@seabird.example",
-        to: ["alex@example.com"],
+        to: [account],
         subject: "Your weekend, all sorted",
-        body: "Your reservation is confirmed.\n\nCheck-in: Friday, 3 PM\nCheck-out: Sunday, 11 AM\n\nThis fictional reservation demonstrates how OpenMuse can organize travel details.",
+        body: "Your reservation is confirmed.\n\nCheck-in: Friday, 3 PM\nCheck-out: Sunday, 11 AM\n\nThis fictional reservation demonstrates how OpenRoads can organize travel details.",
         date: at(7, 30),
         unread: false,
         label: "Travel",
@@ -199,7 +204,7 @@ export class WorkspaceService {
         threadId: "studio-thread",
         sender: "Studio North",
         from: "hello@studionorth.example",
-        to: ["alex@example.com"],
+        to: [account],
         subject: "Notes from our last conversation",
         body: "Thanks for a thoughtful conversation yesterday. Let’s use our next session to review the prototype and pick the three flows for testing.\n\nThis project is part of your local workspace.",
         date: new Date(now.getTime() - 86400000).toISOString(),
@@ -280,11 +285,12 @@ export class WorkspaceService {
       events = [];
     }
     const tokens = this.config.mode === "live" ? await this.googleAuth.tokens(owner) : null;
+    const sample = this.sampleAccount();
     return {
       mode: this.config.mode,
       profile: {
-        name: this.config.mode === "sample" ? "Alex" : "You",
-        email: tokens?.account ?? (this.config.mode === "sample" ? "alex@example.com" : ""),
+        name: this.config.mode === "sample" ? sample.name : "You",
+        email: tokens?.account ?? (this.config.mode === "sample" ? sample.email : ""),
       },
       mail: mail.sort((a, b) => b.date.localeCompare(a.date)),
       events: events.sort((a, b) => a.start.localeCompare(b.start)),
@@ -301,8 +307,7 @@ export class WorkspaceService {
               ? "sample"
               : "connected"
             : "disconnected",
-          account:
-            tokens?.account ?? (this.config.mode === "sample" ? "alex@example.com" : undefined),
+          account: tokens?.account ?? (this.config.mode === "sample" ? sample.email : undefined),
           capabilities:
             this.config.mode === "sample" ? ["Gmail", "Calendar"] : (tokens?.scopes ?? []),
         },
@@ -359,7 +364,7 @@ export class WorkspaceService {
           id,
           threadId: input.data.threadId ?? id,
           sender: "You",
-          from: "alex@example.com",
+          from: this.sampleAccount().email,
           to: input.data.to,
           subject: input.data.subject,
           body: input.data.body,
